@@ -140,6 +140,7 @@ def db_connect():
 problems = getDBDataList() 
 silent_mode = False    # use this variable to turn on/off appropriate messaging depending on student or instructor use
 
+print('\n\nProblem Number/Num. Carts within Capacity/Num. Carts Overcapacity')
 for problem_id in problems:
     cart_cap, items = db_get_data(problem_id)
     errors = False
@@ -175,11 +176,8 @@ for problem_id in problems:
         
         if silent_mode:
             status = "P"+str(problem_id)+"bin_pack_"
-        else:
-            print("Carts Packed for Problem ", str(problem_id)," ....") 
-        
-        if silent_mode:
             print(status+"; num_ok: "+num_ok+"; num_over: "+num_over)
         else:
-            print("num_ok/num_over: ", num_ok,"/",num_over)
+            print(('/').join([str(problem_id),str(num_ok),str(num_over)])) 
+        
         this_time = datetime.datetime.now()     
