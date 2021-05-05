@@ -41,18 +41,18 @@ def checkCapacity(items, cart_contents, cart_cap):
                     else:
                         num_over += 1
                 else:
-                    print("function checkCapacity(),contents of each bin must be in a sub-list")
+                    print("Data type error: contents of each cart must be in a sub-list")
                     return 'sublist_error','sublist_error'
             return num_ok, num_over
         else:
-            print("function checkCapacity(), bin_contents must be in a list")
+            print("Data type error: cart_contents must be a list of lists")
             return 'list_needed', 'list_needed'
     else:
-        print("function checkCapacity(), articles argument requires a dictionary")
+        print("Internal error in function checkCapacity(), items argument must be a dictionary")
         return 'dict_needed', 'dict_needed'
         
 def checkAllPoints(items, bin_contents):
-    """ Check to be sure that all items are packed in one bin """
+    """ Check to be sure that all items are packed in exactly one bin """
     
     err_mess = ""
     err_mult= False
@@ -60,15 +60,20 @@ def checkAllPoints(items, bin_contents):
     for this_cart in bin_contents:
         for item in this_cart:
             checkit[item] = checkit.get(item,0) + 1
-            if checkit[item] > 1:
-                err_mult = True
-                err_mess += "Loc assigned mult times"
+    item_count = [(k,v) for k,v in checkit.items()]
+    item_count.sort(key = lambda x:x[1], reverse = True)
+    if item_count[0][1] > 1:
+        err_mult = True
+        err_mess += "At least one item is assigned multiple times.  "
                 
     err_all = False
-    for key_art in items.keys():
-        if key_art not in checkit.keys():
-            err_all = True
-            err_mess += "Some locs not assigned to bins"
+    if len(items.keys() - checkit.keys()) > 0:
+        err_all = True
+        err_mess += "Some items not assigned to carts.  "
+    #for key_art in items.keys():
+    #    if key_art not in checkit.keys():
+    #        err_all = True
+    #        err_mess += "Some items not assigned to carts"
             
     return err_mult, err_all, err_mess
 
@@ -147,7 +152,7 @@ for problem_id in problems:
     response = None
     
     #while finished == False:
-    username, response, nickname = amazon_algo(items,cart_cap)
+    username, response, nickname = amazon_algo(items.copy(),cart_cap)
     #if not isinstance(response,str):
     if isinstance(response,list):
         num_ok, num_over = checkCapacity(items, response, cart_cap)
@@ -164,19 +169,19 @@ for problem_id in problems:
             if silent_mode:
                 status += "_" + err_mess
             else:
-                print("P"+str(problem_id)+err_mess+"_")
+                print("Problem "+ str(problem_id) + ': ' + err_mess)
     else:
         errors = True
         if silent_mode:
-            status = "response not a list"
+            status = "Solution is not of the list data type.  Other errors may also exist."
         else:
-            print("P"+str(problem_id)+"reponse_must_be_list_")
+            print("Problem "+ str(problem_id) + ": Solution is not of the list data type.  Other errors may also exist.")
             
     if errors == False:
         
         if silent_mode:
-            status = "P"+str(problem_id)+"bin_pack_"
-            print(status+"; num_ok: "+num_ok+"; num_over: "+num_over)
+            status = "Problem "+ str(problem_id) + ": "
+            print(status+"; num_ok: " + num_ok + "; num_over: " + num_over)
         else:
             print(('/').join([str(problem_id),str(num_ok),str(num_over)])) 
         
