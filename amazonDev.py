@@ -7,6 +7,7 @@ This is a temporary script file.
 
 import mysql.connector as mySQL
 import datetime
+import re
 
 """ global MySQL settings """
 mysql_user_name = 'xxxx'
@@ -140,6 +141,30 @@ def db_connect():
     cnx = mySQL.connect(user=mysql_user_name, passwd=mysql_password,
                         host=mysql_ip, db=mysql_db)
     return cnx
+
+def print_find(f_name):
+    #print(__file__)
+    f_name = f_name[:]
+    f_name = f_name.replace('()','')
+    
+    with open(__file__, 'r') as f:
+        code = f.readlines()
+        
+    i = 0
+    while not re.search('def\s'+f_name,code[i]) and i < len(code) - 1:
+        i += 1
+    if i == len(code) - 1:
+        msg = 'Function %s() is missing from this code' % f_name
+    else:
+        i += 1
+        msg = ''
+        while re.search('^\s+', code[i]):
+            if not re.search('\s+#', code[i]) and re.search('print\(', code[i]):
+                #print('Please remove or comment out the print statement in your function code before submission:', code[i])
+                msg += 'Please remove or comment out the print statement in your %s() function code before submission: %s\n' % (f_name, code[i].strip(),)
+            i += 1
+    
+    return msg
     
 """ Get, and evaluate solutions based on algorithm """
 problems = getDBDataList() 
@@ -185,4 +210,8 @@ for problem_id in problems:
         else:
             print(('/').join([str(problem_id),str(num_ok),str(num_over)])) 
         
-        this_time = datetime.datetime.now()     
+        this_time = datetime.datetime.now()
+
+msg = print_find('amazon_algo')
+if msg:
+    print(msg)
